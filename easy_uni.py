@@ -10,6 +10,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.common.action_chains import ActionChains
 import sys
 import random
 from cryptography.fernet import Fernet
@@ -312,12 +313,19 @@ def convert_duration_to_seconds(duration_str):
 
 def join_lecture(driver, time_list_of_lectures, i):
     wait = WebDriverWait(driver, 10)
+    actions = ActionChains(driver)
+
     lecture_site = '.site-mouseover-color'
     print(f"강의  시간: {time_list_of_lectures}초")
     wait_lecture_icon = wait.until(
         EC.presence_of_all_elements_located((By.CSS_SELECTOR, lecture_site)))
     if i < len(wait_lecture_icon):
         wait_lecture_icon[i].click()
+        time.sleep(5)
+        actions.send_keys(Keys.SPACE).perform()
+        for _ in range(5):
+            actions.send_keys(Keys.ARROW_DOWN)
+        actions.perform()
         time.sleep(time_list_of_lectures)
 
     else:
