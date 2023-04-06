@@ -49,9 +49,9 @@ def main():
 
         # 강의 정보 긁어오기
         lecture_duration = get_lecture_duration(driver)
-        print(lecture_duration)
+        # print(lecture_duration)
         current_lecture_duration = get_current_lecture_duration(driver)
-        print(current_lecture_duration)
+        # print(current_lecture_duration)
         pure_time_list = extract_pure_time(lecture_duration)
         # 강의 찾아서 들어가는 함수 만들기
 
@@ -60,7 +60,7 @@ def main():
         time.sleep(2)
         icon_selector(driver)
 
-    print(pure_time_list)
+    # print(pure_time_list)
     print("모든 강의가 끝났습니다.")
     driver.quit()
 
@@ -105,8 +105,6 @@ def submit():
     global username, password
     username = entry_username.get()
     password = entry_password.get()
-    print(f"Username: {username}")
-    print(f"Password: {password}")
 
     encrypted_username = encrypt_data(username)
     encrypted_password = encrypt_data(password)
@@ -281,7 +279,7 @@ def is_lecture_completed(driver, last_durations, current_durations, pure_time_li
         else:
             left_time_list = pure_time_list[i] - \
                 pure_current_time[i] + random_time
-            print(f"랜덤 시간 : {random_time}")
+            # print(f"랜덤 시간 : {random_time}")
             print(f"재생 시간 : {left_time_list}")
             join_lecture(driver, left_time_list, i)
     driver.back()
