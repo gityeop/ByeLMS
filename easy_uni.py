@@ -23,7 +23,11 @@ def get_chrome_driver():
         current_dir = os.path.dirname(os.path.abspath(__file__))
         chromedriver_path = os.path.join(current_dir, "chromedriver")
 
-    driver = webdriver.Chrome(executable_path=chromedriver_path)
+    options = webdriver.ChromeOptions()
+    options.add_experimental_option("excludeSwitches", ["enable-logging"])
+
+    driver = webdriver.Chrome(
+        executable_path=chromedriver_path, options=options)
     return driver
 
 
