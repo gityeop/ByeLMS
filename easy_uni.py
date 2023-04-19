@@ -324,9 +324,17 @@ def join_lecture(driver, time_list_of_lectures, i):
     if i < len(wait_lecture_icon):
         wait_lecture_icon[i].click()
         time.sleep(5)
+        secondary_auth_elements = driver.find_elements(
+            By.CSS_SELECTOR, 'div.secondary_auth_way_inner.secondary_auth_way_inner_left')
+        if len(secondary_auth_elements) > 1:
+            print("2차 본인인증 창이 떴습니다. 1분 30초 대기합니다.")
+            time.sleep(90)  # 1분 30초 대기
+
         actions.send_keys(Keys.SPACE).perform()
+        print('space')
         for _ in range(5):
             actions.send_keys(Keys.ARROW_DOWN)
+            print('arrow_down')
         actions.perform()
         time.sleep(time_list_of_lectures)
 
