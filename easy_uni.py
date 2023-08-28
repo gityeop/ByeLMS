@@ -1,7 +1,5 @@
 import os
 import pickle
-import tkinter as tk
-import requests
 from bs4 import BeautifulSoup
 import time
 from selenium import webdriver
@@ -14,20 +12,14 @@ from selenium.webdriver.common.action_chains import ActionChains
 import sys
 import random
 from cryptography.fernet import Fernet
+from webdriver_manager.chrome import ChromeDriverManager
+import stdiomask
 
 
 def get_chrome_driver():
-    if getattr(sys, 'frozen', False):
-        chromedriver_path = os.path.join(sys._MEIPASS, "chromedriver.exe")
-    else:
-        current_dir = os.path.dirname(os.path.abspath(__file__))
-        chromedriver_path = os.path.join(current_dir, "chromedriver")
 
-    options = webdriver.ChromeOptions()
-    options.add_experimental_option("excludeSwitches", ["enable-logging"])
-
-    driver = webdriver.Chrome(
-        executable_path=chromedriver_path, options=options)
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service)
     return driver
 
 
@@ -65,7 +57,7 @@ def main():
         icon_selector(driver)
 
     # print(pure_time_list)
-    print("모든 강의가 끝났습니다.")
+    print("모든 강의 수강이 끝났습니다. 남은 시간을 자신에게 유익하게 보내시길 바랍니다.")
     driver.quit()
 
 
@@ -105,18 +97,15 @@ def decrypt_data(encrypted_data):
     return decrypted_data
 
 
-def submit():
+def submit(entry_username, entry_password):
     global username, password
-    username = entry_username.get()
-    password = entry_password.get()
-
+    username = entry_username
+    password = entry_password
     encrypted_username = encrypt_data(username)
     encrypted_password = encrypt_data(password)
 
     with open("credentials_encrypted.pickle", "wb") as file:
         pickle.dump((encrypted_username, encrypted_password), file)
-
-    window.destroy()
 
 
 def load_credentials():
@@ -129,29 +118,66 @@ def load_credentials():
     return "", ""
 
 
-window = tk.Tk()
-window.title("Login")
+print("""
+███████████████████████████████████████████████████████████████████████████
+████████████████████████▓▓▒▒▒▒▒▒▓▓▓████████████████████████████████████████
+████████████████████▓▒▒░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓█████▓▓▒▒▒▒░░░░░▒▒▒▓████████████████
+██████████████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓██████████████
+████████████████▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█████████████
+██████████████▓▒▒▒▒▒▒▒▒▒▒▒░░░░░░░░░░░░▒▒▒▒░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒████████████
+█████████████▓░▒▒▒▒▒▒▒░░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░▒░▒▒░░░░░░░░░░░░░░▒▒░▓███████████
+████████████▒▒▒▒▒▒▒▒▒░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░▒▒▒▓███████
+███████████▒░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░░░░░░░░░▒▒▒▒▒▒▒▒▒▒▒░░░░░░░▒▒▒▒▒█████
+██████████▓░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░▒░░░░░░░░░░░░░▒░░░░░░░░░░░░░░░░░░░░░░░▒▓███
+███████▓▒▒░▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░▒░░░░▒▒▒▒▒▓▓▓▓▓▓▓▓▓▒░░░░░░░▒▒░░▒▒▓▓▓▓▓▓▓▒░░░░██
+█████▓░▒▒▒░▒▒▒▒▒▒▒▒▒▒▒░░░░░░░▒▒▓▓░░░░░░▒█████████▓░▒██▓░░░░░░▒██████████▓░▓
+████▒▒▒▒▒░▒▒▒▒▒▒▒▒▒▒░░░▒▒▒▒▒▓███░░░░▒░░░░█████████▓███░░░░▒░░░░███████████▓
+███▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░▒▓█████░░▒▒░░░░░█████████▓███░░▓▒░░░▒░███████████▓
+██▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓██▓░▓▒░░░░▓██████▓▓▒▓███▓▒▒▒░░░░███████▓▓▒░▓█
+█▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░▒▒▒▒▒▒░░░▒▓▓▓▓▓▓▒▒▒░░▒▒▒▒▒▒░░░░▒▒▒▒▒▒▒▒▒▒▒▒▓██
+▒░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░░░░░░░░░░░░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█████
+░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓███████
+▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░░░░░░░▒█████████
+░░░░░░░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒███████
+░▒▒▒▒▒▒▒░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒██████
+░░▒▒▒▒▒▒▒░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█████
+▒▒░▒▒▒▒▒▒▒░▒▒▒▒▒▒░░░░░░░░░░░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░█████
+▒▒░░▒▒▒▒▒▒░▒▒▒▒▒░░░░░░░░░░░░░░░░░░░░░░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░▓███
+▒▒▒░▒▒▒▒▒▒░░▒▒▒▒▒░░░░░░░▒▓▒▒▒░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░▒███
+▒▒▒░░▒▒▒▒▒▒░▒▒▒▒▒░░░░░░░░░▒▓█▓█▓▒▒▒▒░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░▒▓████
+▒▒▒▒░▒▒▒▒▒▒░▒▒▒▒▒▒▒░░░░░░░░░░▒▒▓██████▓▓▓▓▓▒▒▒░░░░░░░░░░░░░░░░░▒▒▓▓▓███████
+░▒▒▒░▒▒▒▒▒▒░░░░░░░░░▒░░░░░░░░░░░░░▒▒▓▓▓███████████▓████████████████████████
+▓▒▒░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░▒▒▒░░░░░░░░░░░░░░░░░░▒▒▒▓▓███▓█████▓████████▓▓████████
+▓▒░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░▒▒▒▒▒▒▒▒░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░▓███████
+▒▒░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░▓███████
+▒▒░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░░░░░░░░░░░░░░░▒▒█████████
+▒▒░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░░░░░░░░░░░░░░░░░░░░░░▒░░░▒████████████████████████
+▒▒░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░░░░░░░░░░░▒▒░░▒▒▒▒▒▒░░░░░░▒▒▒▒▒▒▓█████████████████████
+▒▒░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓██████████████████
+▒▒░░░░░░▒▒▒▒▒▒▒▒▒░░░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█████████████████
+▒▒░▒▒▒▒▒▒▒▒▒▒▒▒▒░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒████████████████
 
-label_username = tk.Label(text="Username:")
-entry_username = tk.Entry()
-label_password = tk.Label(text="Password:")
-entry_password = tk.Entry(show="*")
-
-submit_button = tk.Button(text="Submit", command=submit)
-
-label_username.pack()
-entry_username.pack()
-label_password.pack()
-entry_password.pack()
-submit_button.pack()
-
+""")
+print("ByeLMS 개발자입니다. 이 프로그램은 개인정보를 수집하지 않습니다.")
+print("듣기 싫은 강의 떄문에 낭비되는 시간을 이 프로그램에 맡기시고,")
+print("그동안 자신에게 더 유익한 시간 보내길 바라는 마음에서 개발하게 되었습니다.")
 # Load saved credentials if they exist
 saved_username, saved_password = load_credentials()
-entry_username.insert(0, saved_username)
-entry_password.insert(0, saved_password)
 
-entry_username.focus_set()
-window.mainloop()
+# Get username
+print("한번 로그인을 했다면 Enter만 눌러서 넘어가면 됩니다.")
+entry_username = input("Username: ")
+if not entry_username:
+    print(f"저장된 아이디를 사용합니다. 아이디: {saved_username}")
+    entry_username = saved_username
+
+# Get password
+entry_password = stdiomask.getpass(prompt='Password: ', mask='*')
+if not entry_password:
+    print("저장된 비밀번호를 사용합니다.")
+    entry_password = saved_password
+
+submit(entry_username, entry_password)
 
 
 def login(driver, login_url, username, password):
@@ -217,7 +243,7 @@ def extract_number():
 
     lecture_weeks_cnt = soup.select_one('#lecture_weeks_cnt')
     number = int(lecture_weeks_cnt.text)
-    print(number)
+    print(f"들어야 하는 강의 수: {number}")
     return number
 
 
@@ -283,8 +309,8 @@ def is_lecture_completed(driver, last_durations, current_durations, pure_time_li
         else:
             left_time_list = pure_time_list[i] - \
                 pure_current_time[i] + random_time
-            # print(f"랜덤 시간 : {random_time}")
-            print(f"재생 시간 : {left_time_list}")
+            print(f"들어야하는 강의 시간에 랜덤한 시간을 더합니다. {random_time}초")
+            print(f"들어야 하는 시간 : {left_time_list}")
             join_lecture(driver, left_time_list, i)
     driver.back()
 
@@ -313,12 +339,17 @@ def convert_duration_to_seconds(duration_str):
     return total_seconds
 
 
+def seconds_to_minutes_and_seconds(total_seconds):
+    minutes = total_seconds // 60
+    seconds = total_seconds % 60
+    return f"{minutes}분 {seconds}초"
+
+
 def join_lecture(driver, time_list_of_lectures, i):
     wait = WebDriverWait(driver, 10)
     actions = ActionChains(driver)
 
     lecture_site = '.site-mouseover-color'
-    print(f"강의  시간: {time_list_of_lectures}초")
     wait_lecture_icon = wait.until(
         EC.presence_of_all_elements_located((By.CSS_SELECTOR, lecture_site)))
     if i < len(wait_lecture_icon):
@@ -327,15 +358,16 @@ def join_lecture(driver, time_list_of_lectures, i):
         secondary_auth_elements = driver.find_elements(
             By.CSS_SELECTOR, 'div.secondary_auth_way_inner.secondary_auth_way_inner_left')
         if len(secondary_auth_elements) > 1:
-            print("2차 본인인증 창이 떴습니다. 1분 30초 대기합니다.")
+            print("2차 본인인증 창이 떴습니다. 1분 30초 대기합니다. 2차 인증을 진행해주세요.")
             time.sleep(90)  # 1분 30초 대기
 
         actions.send_keys(Keys.SPACE).perform()
-        print('space')
         for _ in range(5):
             actions.send_keys(Keys.ARROW_DOWN)
-            print('arrow_down')
         actions.perform()
+        lecture_left_minute = seconds_to_minutes_and_seconds(
+            time_list_of_lectures)
+        print(f"{i+1}번째 강의를 {lecture_left_minute}만큼 듣습니다.")
         time.sleep(time_list_of_lectures)
 
     else:
@@ -349,4 +381,9 @@ def join_lecture(driver, time_list_of_lectures, i):
 
 
 if __name__ == "__main__":
-    main()
+    try:
+        main()
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    finally:
+        input("Press Enter to close...")
