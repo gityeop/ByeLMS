@@ -12,14 +12,13 @@ from selenium.webdriver.common.action_chains import ActionChains
 import sys
 import random
 from cryptography.fernet import Fernet
-from webdriver_manager.chrome import ChromeDriverManager
 import stdiomask
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 def get_chrome_driver():
 
-    service = Service(ChromeDriverManager().install())
-    driver = webdriver.Chrome(service=service)
+    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
     return driver
 
 
@@ -158,23 +157,26 @@ print("""
 ▒▒░▒▒▒▒▒▒▒▒▒▒▒▒▒░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒████████████████
 
 """)
-print("ByeLMS 개발자입니다. 이 프로그램은 개인정보를 수집하지 않습니다.")
-print("듣기 싫은 강의 떄문에 낭비되는 시간을 이 프로그램에 맡기시고,")
-print("그동안 자신에게 더 유익한 시간 보내길 바라는 마음에서 개발하게 되었습니다.")
+print("👋 ByeLMS 개발자입니다. 이 프로그램은 개인정보를 수집하지 않습니다. 🔒")
+print()
+print("😫 듣기 싫은 강의 때문에 낭비되는 시간을 이 프로그램에 맡기시고,")
+print()
+print("🌱 그동안 자신에게 더 유익한 시간을 보내길 바라는 마음에서 개발하게 되었습니다. 🌟")
+
 # Load saved credentials if they exist
 saved_username, saved_password = load_credentials()
 
 # Get username
-print("한번 로그인을 했다면 Enter만 눌러서 넘어가면 됩니다.")
-entry_username = input("Username: ")
+print("🔐 한번 로그인을 했다면 Enter만 눌러서 넘어가면 됩니다.")
+entry_username = input("👤 Username: ")
 if not entry_username:
-    print(f"저장된 아이디를 사용합니다. 아이디: {saved_username}")
+    print(f"📁 저장된 아이디를 사용합니다. 아이디: {saved_username}")
     entry_username = saved_username
 
 # Get password
-entry_password = stdiomask.getpass(prompt='Password: ', mask='*')
+entry_password = stdiomask.getpass(prompt='🔑 Password: ', mask='*')
 if not entry_password:
-    print("저장된 비밀번호를 사용합니다.")
+    print("📁 저장된 비밀번호를 사용합니다.")
     entry_password = saved_password
 
 submit(entry_username, entry_password)
@@ -243,7 +245,7 @@ def extract_number():
 
     lecture_weeks_cnt = soup.select_one('#lecture_weeks_cnt')
     number = int(lecture_weeks_cnt.text)
-    print(f"들어야 하는 강의 수: {number}")
+    print(f"🔢 들어야 하는 강의 수: {number} 📊")
     return number
 
 
@@ -256,7 +258,7 @@ def count_lectures(driver):
     lecture_count = len(lecture_list)
 
     if lecture_count == 0:
-        print("강의가 없습니다. 프로그램을 종료합니다.")
+        print("❌ 강의가 없습니다. 프로그램을 종료합니다. 🛑")
         driver.quit()
         sys.exit()
 
@@ -309,8 +311,8 @@ def is_lecture_completed(driver, last_durations, current_durations, pure_time_li
         else:
             left_time_list = pure_time_list[i] - \
                 pure_current_time[i] + random_time
-            print(f"들어야하는 강의 시간에 랜덤한 시간을 더합니다. {random_time}초")
-            print(f"들어야 하는 시간 : {left_time_list}")
+            print(f"🎲 들어야하는 강의 시간에 랜덤한 시간을 더합니다. {random_time}초 ⏰")
+            print(f"⏳ 들어야 하는 시간 : {left_time_list} ⌛")
             join_lecture(driver, left_time_list, i)
     driver.back()
 
@@ -358,7 +360,7 @@ def join_lecture(driver, time_list_of_lectures, i):
         secondary_auth_elements = driver.find_elements(
             By.CSS_SELECTOR, 'div.secondary_auth_way_inner.secondary_auth_way_inner_left')
         if len(secondary_auth_elements) > 1:
-            print("2차 본인인증 창이 떴습니다. 1분 30초 대기합니다. 2차 인증을 진행해주세요.")
+            print("🔐 2차 본인인증 창이 떴습니다. 1분 30초 대기합니다. 2차 인증을 진행해주세요. ⏳")
             time.sleep(90)  # 1분 30초 대기
 
         actions.send_keys(Keys.SPACE).perform()
@@ -367,7 +369,7 @@ def join_lecture(driver, time_list_of_lectures, i):
         actions.perform()
         lecture_left_minute = seconds_to_minutes_and_seconds(
             time_list_of_lectures)
-        print(f"{i+1}번째 강의를 {lecture_left_minute}만큼 듣습니다.")
+        print(f"📚 {i+1}번째 강의를 {lecture_left_minute}분만큼 듣습니다. ⏲️")
         time.sleep(time_list_of_lectures)
 
     else:

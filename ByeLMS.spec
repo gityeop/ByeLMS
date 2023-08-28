@@ -41,5 +41,4 @@ exe = EXE(
     target_arch=None,
     codesign_identity=None,
     entitlements_file=None,
-    icon=['/Users/imsang-yeob/문서/Coding/konkuk_project/ByeLMS/icon.ico'],
 )
