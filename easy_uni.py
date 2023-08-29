@@ -9,16 +9,15 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.action_chains import ActionChains
+from selenium.webdriver.common.selenium_manager import SeleniumManager
 import sys
 import random
 from cryptography.fernet import Fernet
 import stdiomask
-from webdriver_manager.chrome import ChromeDriverManager
 
 
 def get_chrome_driver():
-
-    driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()))
+    driver = webdriver.Chrome()
     return driver
 
 
@@ -32,11 +31,11 @@ def main():
     login_url = "https://ecampus.konkuk.ac.kr/ilos/main/member/login_form.acl"
     # 강의 페이지 URL로 변경하세요
 
-    time.sleep(3)  # 로그인 후 페이지가 로드되기를 기다립니다.
+    time.sleep(2)  # 로그인 후 페이지가 로드되기를 기다립니다.
 
     login(driver, login_url, username, password)
 
-    time.sleep(3)  # 로그인 후 페이지가 로드되기를 기다립니다.
+    time.sleep(2)  # 로그인 후 페이지가 로드되기를 기다립니다.
     icon_selector(driver)
     extract_number_of_lectures = extract_number()
     for i in range(extract_number_of_lectures):
@@ -50,13 +49,15 @@ def main():
         pure_time_list = extract_pure_time(lecture_duration)
         # 강의 찾아서 들어가는 함수 만들기
 
-        is_lecture_completed(driver, lecture_duration,
-                             current_lecture_duration, pure_time_list)
+        is_lecture_completed(
+            driver, lecture_duration, current_lecture_duration, pure_time_list
+        )
         time.sleep(2)
         icon_selector(driver)
 
     # print(pure_time_list)
-    print("모든 강의 수강이 끝났습니다. 남은 시간을 자신에게 유익하게 보내시길 바랍니다.")
+    print("🎉 모든 강의 수강이 끝났습니다. 📚 남은 시간을 자신에게 유익하게 보내시길 바랍니다. ⏰")
+
     driver.quit()
 
 
@@ -64,6 +65,7 @@ def generate_key():
     key = Fernet.generate_key()
     with open("key.key", "wb") as key_file:
         key_file.write(key)
+
 
 # Load the key from the file
 
@@ -77,6 +79,7 @@ def load_key():
         generate_key()
         return load_key()
 
+
 # Encrypt the data
 
 
@@ -85,6 +88,7 @@ def encrypt_data(data):
     f = Fernet(key)
     encrypted_data = f.encrypt(data.encode())
     return encrypted_data
+
 
 # Decrypt the data
 
@@ -117,7 +121,16 @@ def load_credentials():
     return "", ""
 
 
-print("""
+def display_ascii_art_line_by_line(ascii_art, delay=0.0005):
+    lines = ascii_art.strip().split("\n")
+    for line in lines:
+        for char in line:
+            print(char, end="", flush=True)
+            time.sleep(delay)
+        print()  # Move to the next line
+
+
+ascii_art = """
 ███████████████████████████████████████████████████████████████████████████
 ████████████████████████▓▓▒▒▒▒▒▒▓▓▓████████████████████████████████████████
 ████████████████████▓▒▒░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▓█████▓▓▒▒▒▒░░░░░▒▒▒▓████████████████
@@ -156,27 +169,39 @@ print("""
 ▒▒░░░░░░▒▒▒▒▒▒▒▒▒░░░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒█████████████████
 ▒▒░▒▒▒▒▒▒▒▒▒▒▒▒▒░░▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒████████████████
 
-""")
-print("👋 ByeLMS 개발자입니다. 이 프로그램은 개인정보를 수집하지 않습니다. 🔒")
+"""
+display_ascii_art_line_by_line(ascii_art)
 print()
-print("😫 듣기 싫은 강의 때문에 낭비되는 시간을 이 프로그램에 맡기시고,")
+
+display_ascii_art_line_by_line(
+    "👋 ByeLMS 개발자입니다. 이 프로그램은 개인정보를 수집하지 않습니다. 🔒", delay=0.035
+)
 print()
-print("🌱 그동안 자신에게 더 유익한 시간을 보내길 바라는 마음에서 개발하게 되었습니다. 🌟")
+display_ascii_art_line_by_line("😫 듣기 싫은 강의 때문에 낭비되는 시간을 이 프로그램에 맡기시고,", delay=0.035)
+print()
+display_ascii_art_line_by_line(
+    "🌱 그동안 자신에게 더 유익한 시간을 보내길 바라는 마음에서 개발하게 되었습니다. 🌟", delay=0.035
+)
+print()
 
 # Load saved credentials if they exist
 saved_username, saved_password = load_credentials()
 
 # Get username
-print("🔐 한번 로그인을 했다면 Enter만 눌러서 넘어가면 됩니다.")
+display_ascii_art_line_by_line("🔐 한번 로그인을 했다면 Enter만 눌러서 넘어가면 됩니다.", delay=0.035)
+print()
 entry_username = input("👤 Username: ")
 if not entry_username:
-    print(f"📁 저장된 아이디를 사용합니다. 아이디: {saved_username}")
+    display_ascii_art_line_by_line(
+        f"📁 저장된 아이디를 사용합니다. 아이디: {saved_username}", delay=0.035
+    )
     entry_username = saved_username
+print()
 
 # Get password
-entry_password = stdiomask.getpass(prompt='🔑 Password: ', mask='*')
+entry_password = stdiomask.getpass(prompt="🔑 Password: ", mask="*")
 if not entry_password:
-    print("📁 저장된 비밀번호를 사용합니다.")
+    display_ascii_art_line_by_line("📁 저장된 비밀번호를 사용합니다.", delay=0.035)
     entry_password = saved_password
 
 submit(entry_username, entry_password)
@@ -190,9 +215,11 @@ def login(driver, login_url, username, password):
     wait.until(EC.presence_of_element_located(login_button_locator))
 
     username_input = driver.find_element(
-        by=By.NAME, value="usr_id")  # 실제 사용자 이름 입력창의 요소 이름으로 변경하세요
+        by=By.NAME, value="usr_id"
+    )  # 실제 사용자 이름 입력창의 요소 이름으로 변경하세요
     password_input = driver.find_element(
-        by=By.NAME, value="usr_pwd")  # 실제 비밀번호 입력창의 요소 이름으로 변경하세요
+        by=By.NAME, value="usr_pwd"
+    )  # 실제 비밀번호 입력창의 요소 이름으로 변경하세요
     username_input.send_keys(username)
     password_input.send_keys(password)
     password_input.send_keys(Keys.RETURN)  # 로그인 폼을 제출합니다.
@@ -203,7 +230,8 @@ def icon_selector(driver):
     todo_icon = "#header > div.utillmenu > div > fieldset > div > div:nth-child(2)"
 
     icon_elements = wait.until(
-        EC.presence_of_all_elements_located((By.CSS_SELECTOR, todo_icon)))
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, todo_icon))
+    )
     print(icon_elements)
 
     if icon_elements:
@@ -219,7 +247,8 @@ def online_lecture_selector(driver):
     online_lecture = "#todo_pop > div > div.todo_search_wrap > div.todo_category_wrap > div:nth-child(1)"
     time.sleep(2)
     online_lecture_icon = wait.until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, online_lecture)))
+        EC.presence_of_element_located((By.CSS_SELECTOR, online_lecture))
+    )
     online_lecture_icon.click()
     online_lecture_item = "#todo_list > div.todo_wrap.on"  # 실제 아이콘 요소의 CSS 선택자로 변경하세요
     online_lectures_item_ver2 = "#todo_list > div:nth-child(2)"
@@ -227,9 +256,11 @@ def online_lecture_selector(driver):
     # online_lecture_icon.click()
     time.sleep(2)
     online_lecture_item_wait = wait.until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, online_lecture_item)))
+        EC.presence_of_element_located((By.CSS_SELECTOR, online_lecture_item))
+    )
     online_lectures_item_ver2_wait = wait.until(
-        EC.presence_of_element_located((By.CSS_SELECTOR, online_lectures_item_ver2)))
+        EC.presence_of_element_located((By.CSS_SELECTOR, online_lectures_item_ver2))
+    )
     if online_lecture_item_wait is None:
         if online_lectures_item_ver2 is None:
             driver.quit()
@@ -241,9 +272,9 @@ def online_lecture_selector(driver):
 
 def extract_number():
     html = '<div class="cate_cnt" id="lecture_weeks_cnt">2</div>'
-    soup = BeautifulSoup(html, 'html.parser')
+    soup = BeautifulSoup(html, "html.parser")
 
-    lecture_weeks_cnt = soup.select_one('#lecture_weeks_cnt')
+    lecture_weeks_cnt = soup.select_one("#lecture_weeks_cnt")
     number = int(lecture_weeks_cnt.text)
     print(f"🔢 들어야 하는 강의 수: {number} 📊")
     return number
@@ -252,8 +283,9 @@ def extract_number():
 def count_lectures(driver):
     wait = WebDriverWait(driver, 10)  # 최대 10초 동안 대기합니다.
     lecture_list_selector = ".site-mouseover-color"  # 강의 목록을 나타내는 CSS 선택자로 변경하세요
-    wait.until(EC.presence_of_all_elements_located(
-        (By.CSS_SELECTOR, lecture_list_selector)))
+    wait.until(
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, lecture_list_selector))
+    )
     lecture_list = driver.find_elements(By.CSS_SELECTOR, lecture_list_selector)
     lecture_count = len(lecture_list)
 
@@ -269,10 +301,10 @@ def get_lecture_duration(driver):
     wait = WebDriverWait(driver, 10)  # 최대 10초 동안 대기합니다.
 
     duration_selector = "div[style='float: left;margin-left: 7px;margin-top:3px;']"
-    wait.until(EC.presence_of_all_elements_located(
-        (By.CSS_SELECTOR, duration_selector)))
-    duration_elements = driver.find_elements(
-        By.CSS_SELECTOR, duration_selector)
+    wait.until(
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, duration_selector))
+    )
+    duration_elements = driver.find_elements(By.CSS_SELECTOR, duration_selector)
     last_durations = []
     for element in duration_elements:
         full_text = element.text
@@ -286,8 +318,7 @@ def get_current_lecture_duration(driver):
     wait = WebDriverWait(driver, 10)
 
     css_selector = 'div[style="float: left;margin-left: 7px;margin-top:3px;"]'
-    wait.until(EC.presence_of_all_elements_located(
-        (By.CSS_SELECTOR, css_selector)))
+    wait.until(EC.presence_of_all_elements_located((By.CSS_SELECTOR, css_selector)))
     duration_element = driver.find_elements(By.CSS_SELECTOR, css_selector)
     current_durations = []
     for element in duration_element:
@@ -301,7 +332,6 @@ def get_current_lecture_duration(driver):
 
 
 def is_lecture_completed(driver, last_durations, current_durations, pure_time_list):
-
     wait = WebDriverWait(driver, 10)
     pure_current_time = extract_pure_time(current_durations)
     for i in range(len(last_durations)):
@@ -309,8 +339,7 @@ def is_lecture_completed(driver, last_durations, current_durations, pure_time_li
         if pure_time_list[i] < pure_current_time[i]:
             pass
         else:
-            left_time_list = pure_time_list[i] - \
-                pure_current_time[i] + random_time
+            left_time_list = pure_time_list[i] - pure_current_time[i] + random_time
             print(f"🎲 들어야하는 강의 시간에 랜덤한 시간을 더합니다. {random_time}초 ⏰")
             print(f"⏳ 들어야 하는 시간 : {left_time_list} ⌛")
             join_lecture(driver, left_time_list, i)
@@ -321,7 +350,7 @@ def extract_pure_time(duration_str):
     lecture_time = []
     for element in duration_str:
         pure_time = convert_duration_to_seconds(element)
-        lecture_time. append(pure_time)
+        lecture_time.append(pure_time)
 
     return lecture_time
 
@@ -329,8 +358,11 @@ def extract_pure_time(duration_str):
 def convert_duration_to_seconds(duration_str):
     time_parts = duration_str.split(":")
     if len(time_parts) == 3:
-        hours, minutes, seconds = int(time_parts[0]), int(
-            time_parts[1]), int(time_parts[2])
+        hours, minutes, seconds = (
+            int(time_parts[0]),
+            int(time_parts[1]),
+            int(time_parts[2]),
+        )
     elif len(time_parts) == 2:
         hours = 0
         minutes, seconds = int(time_parts[0]), int(time_parts[1])
@@ -351,14 +383,17 @@ def join_lecture(driver, time_list_of_lectures, i):
     wait = WebDriverWait(driver, 10)
     actions = ActionChains(driver)
 
-    lecture_site = '.site-mouseover-color'
+    lecture_site = ".site-mouseover-color"
     wait_lecture_icon = wait.until(
-        EC.presence_of_all_elements_located((By.CSS_SELECTOR, lecture_site)))
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, lecture_site))
+    )
     if i < len(wait_lecture_icon):
         wait_lecture_icon[i].click()
         time.sleep(5)
         secondary_auth_elements = driver.find_elements(
-            By.CSS_SELECTOR, 'div.secondary_auth_way_inner.secondary_auth_way_inner_left')
+            By.CSS_SELECTOR,
+            "div.secondary_auth_way_inner.secondary_auth_way_inner_left",
+        )
         if len(secondary_auth_elements) > 1:
             print("🔐 2차 본인인증 창이 떴습니다. 1분 30초 대기합니다. 2차 인증을 진행해주세요. ⏳")
             time.sleep(90)  # 1분 30초 대기
@@ -367,9 +402,8 @@ def join_lecture(driver, time_list_of_lectures, i):
         for _ in range(5):
             actions.send_keys(Keys.ARROW_DOWN)
         actions.perform()
-        lecture_left_minute = seconds_to_minutes_and_seconds(
-            time_list_of_lectures)
-        print(f"📚 {i+1}번째 강의를 {lecture_left_minute}분만큼 듣습니다. ⏲️")
+        lecture_left_minute = seconds_to_minutes_and_seconds(time_list_of_lectures)
+        print(f"📚 {i+1}번째 강의를 {lecture_left_minute}만큼 듣습니다. ⏲️")
         time.sleep(time_list_of_lectures)
 
     else:
@@ -378,8 +412,9 @@ def join_lecture(driver, time_list_of_lectures, i):
     time.sleep(2)  # 페이지 로딩을 기다리기 위해 추가
     # 강의 목록을 다시 가져옵니다.
     lecture_list_selector = ".site-mouseover-color"  # 강의 목록을 나타내는 CSS 선택자로 변경하세요
-    wait.until(EC.presence_of_all_elements_located(
-        (By.CSS_SELECTOR, lecture_list_selector)))
+    wait.until(
+        EC.presence_of_all_elements_located((By.CSS_SELECTOR, lecture_list_selector))
+    )
 
 
 if __name__ == "__main__":
